@@ -310,8 +310,21 @@ public class QueryFilter<TEntity> where TEntity : class
                 else if (filterProperty.Operator == FilterOperator.GreaterThanOrEqual)
                     expression = s => Convert.ToChar(s.GetType().GetProperty(filterProperty.Name).GetValue(s).ToString()) >= value;
             }
-            // Add expression creation code for other data types here.
+            // Guid
+            else if (prop.PropertyType == typeof(Guid))
+            {
+                Guid value = new Guid(filterProperty.Value);
 
+                if (filterProperty.Operator == FilterOperator.Equals)
+                    expression = s => new Guid(s.GetType().GetProperty(filterProperty.Name).GetValue(s).ToString()) == value;
+                else if (filterProperty.Operator == FilterOperator.NotEquals)
+                    expression = s => new Guid(s.GetType().GetProperty(filterProperty.Name).GetValue(s).ToString()) != value;
+            }
+            // Add expression creation code for other data types here.
+            else
+            {
+                throw new Exception("QueryFilter does not support comparison on " + prop.PropertyType.Name);
+            }
             // apply the expression
             query = query.Where(expression);
 
